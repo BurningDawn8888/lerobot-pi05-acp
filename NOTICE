@@ -1,0 +1,9 @@
+LeRobot Pi0.5 ACP
+
+This distribution is based on Hugging Face LeRobot, Copyright 2024 The Hugging Face team, licensed under the Apache License, Version 2.0.
+
+The reinforcement-learning workflow and terminology were informed by MINT-SJTU/Evo-RL. No endorsement by the upstream projects is implied.
+
+Local additions include value-model training, value and advantage inference, Advantage-Conditioned Policy training support, intervention-aware annotations, Windows checkpoint-junction handling, and supporting documentation.
+
+Model weights and datasets are not part of this source distribution and may have separate licenses and usage conditions.

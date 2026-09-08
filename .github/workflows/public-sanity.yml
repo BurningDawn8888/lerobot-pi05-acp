@@ -1,0 +1,26 @@
+name: Public repository sanity checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  source-sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile Python source
+        run: python -m compileall -q src
+      - name: Reject generated or private runtime directories
+        shell: bash
+        run: |
+          forbidden=(datasets outputs checkpoints wandb logs calibration failure_reset_pose)
+          for path in "${forbidden[@]}"; do
+            if [[ -e "$path" ]]; then
+              echo "Forbidden repository path: $path"
+              exit 1
+            fi
+          done
