@@ -100,3 +100,44 @@ Keep batch size and distributed topology unchanged when sample-exact resume beha
 Evaluate the original Pi0.5 baseline and ACP checkpoints with identical instructions, placements, calibration, lighting, duration, and safety procedure. Record full success, wrong-object selection, grasp failure, placement failure, completion time, intervention requirement, and every safety event.
 
 Promote an ACP checkpoint only when autonomous success improves without increasing wrong-object or safety-event rates.
+
+## 7. Build the next rollout round
+
+Do not train directly from evaluation CSV files or summary logs. Use failed evaluation conditions only to define targeted tasks, then record complete LeRobot episodes from the initial robot state through the terminal outcome.
+
+For every new episode:
+
+- record all configured camera streams, robot state, policy action, and executed action;
+- assign one terminal result such as success, grasp failure, placement failure, wrong object, or abnormal termination;
+- finish video encoding and dataset finalization before closing the recorder;
+- preserve the raw round as an immutable source dataset;
+- keep failed trajectories for value learning even when they are excluded from behavior-cloning subsets.
+
+## 8. Validate and combine immutable rounds
+
+Create a new training-pool directory or Hub revision instead of appending to an already trained revision. Preserve original episode outcomes and add a source-round identifier so later analyses can separate distribution changes from model changes.
+
+Acceptance checks:
+
+- episode indices are continuous and unique after aggregation;
+- every episode has exactly one terminal outcome and one binary success label;
+- both camera streams decode at the beginning and end of representative episodes from every source round;
+- frame counts, action dimensions, state dimensions, task text, and FPS match the declared metadata;
+- the aggregate success/failure counts equal the sum of the source manifests;
+- no original dataset, video, action, or Round 1 ACP field is overwritten.
+
+Mixed H.264 and AV1 sources can remain in separate MP4 files when the training reader probes each file directly. Treat codec and pixel-format metadata as encoder metadata during aggregation, record heterogeneous values as unspecified, and test real decoding from each codec range before training.
+
+## 9. Train subsequent ACP rounds
+
+Use a new value checkpoint, field suffix, output directory, and model repository for each round. For example, Round 2 should write `value_round2`, `advantage_round2`, and `acp_indicator_round2`; it must not overwrite Round 1 fields.
+
+Run a short smoke test before every full job. Confirm video decoding, finite loss, expected GPU memory, checkpoint creation, and unchanged source data. Then repeat Sections 2 through 6 using the combined frozen training pool and the new field suffix.
+
+Document which checkpoint initializes the next ACP policy. A baseline initialization provides a cleaner comparison, while an accepted prior ACP checkpoint continues the learned policy; the choice must not be implicit.
+
+## 10. Current reference milestone
+
+The reference SO-101 project has completed targeted second-round data collection and aggregate validation. Its local combined pool contains 204 complete episodes and 239,093 frames, with 127 successful and 77 failed episodes. Representative H.264 and AV1 episodes from both camera streams decode successfully. The next operation is a Round 2 value-model smoke test followed by formal value training.
+
+These counts document one experiment and are not bundled with this source repository. Datasets, recordings, model weights, hardware calibration, and private Hub identifiers remain outside Git.

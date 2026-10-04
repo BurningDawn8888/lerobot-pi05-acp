@@ -17,6 +17,8 @@ This repository contains source code only. It intentionally excludes robot calib
 
 This is research software, not a production safety controller. The workflow has been exercised with an SO-101 follower/leader setup, two OpenCV cameras, Pi0.5, Windows, CUDA, and a single 32 GB GPU. Hardware behavior must be validated locally with an accessible physical emergency stop.
 
+The reference project has completed its first ACP train-and-evaluate cycle and a targeted second-round rollout collection. The second-round training pool has passed episode, label, camera, frame-index, and mixed-video-codec checks. The current milestone is second-round value-model training; no ACP checkpoint is considered production-ready until it exceeds the frozen baseline on the same real-robot evaluation matrix.
+
 ## Workflow
 
 1. Start from a working Pi0.5 behavior-cloning checkpoint.
@@ -26,9 +28,11 @@ This is research software, not a production safety controller. The workflow has 
 5. Infer per-frame value, n-step advantage, and a binary ACP indicator on a dataset copy.
 6. Fine-tune Pi0.5 with ACP enabled and indicator dropout.
 7. Compare the baseline and ACP checkpoints with the same fixed real-robot evaluation matrix.
-8. Freeze the winning checkpoint and repeat the loop on newly discovered failures.
+8. Turn failed evaluation conditions into a new, complete rollout dataset.
+9. Merge the new immutable rollout revision with prior frozen rounds, then repeat value training, advantage inference, ACP training, and fixed-matrix evaluation.
+10. Freeze a new production checkpoint only when the promotion gates pass.
 
-See [ACP workflow](docs/ACP_WORKFLOW.md) for command templates and acceptance checks.
+See [ACP workflow](docs/ACP_WORKFLOW.md) for command templates and acceptance checks, and [project status](docs/PROJECT_STATUS.md) for the current reference milestone.
 
 ## Installation
 
@@ -79,6 +83,8 @@ Field names are configurable. Do not run ACP policy training until the indicator
 Keep these items outside Git: datasets, outputs, checkpoints, W&B runs, logs, local configuration, credentials, robot calibration, reset poses, raw recordings, and downloaded model weights.
 
 Publish datasets and trained checkpoints separately through repositories with explicit licenses and dataset/model cards.
+
+When rollout rounds use different video codecs, keep the source files immutable and verify actual frame decoding from every source range before training. Codec metadata compatibility is not a substitute for decoding representative frames.
 
 ## Attribution
 
