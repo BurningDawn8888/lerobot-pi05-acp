@@ -138,6 +138,10 @@ Document which checkpoint initializes the next ACP policy. A baseline initializa
 
 ## 10. Current reference milestone
 
-The reference SO-101 project has completed targeted second-round data collection and aggregate validation. Its local combined pool contains 204 complete episodes and 239,093 frames, with 127 successful and 77 failed episodes. Representative H.264 and AV1 episodes from both camera streams decode successfully. The next operation is a Round 2 value-model smoke test followed by formal value training.
+The reference SO-101 project has completed Round 2 value training, advantage inference, 15,000-step ACP training, and fixed-matrix evaluation. On the same 81-task matrix, the Pi0.5 baseline, ACP R1, and ACP R2 achieved 77.8%, 60.5%, and 67.9% autonomous success. R2 reduced initial grasp failures relative to R1 but remained below the baseline and exposed grasp-slip failures during early transport.
 
-These counts document one experiment and are not bundled with this source repository. Datasets, recordings, model weights, hardware calibration, and private Hub identifiers remain outside Git.
+Frame-by-frame review produced an R3 grasp-stability correction dataset with 25 episodes and 31,527 frames. R3 value training completed 8,000 steps, and full-dataset inference wrote `value_round3`, `advantage_round3`, and `acp_indicator_round3` to a dataset copy. The indicator is finite and binary for every frame; the observed positive ratio is 41.82%, and all 5,521 intervention frames are positive. A 20-step R3 ACP smoke test passed. The current operation is formal 15,000-step R3 ACP training followed by fixed-condition real-robot evaluation.
+
+This sequence is a targeted correction branch, not evidence that the complete π*0.6 loop has been reproduced. A complete next data loop requires an R3 evaluation followed by another collection and training round. Exceeding the baseline is a promotion gate, not a prerequisite for initiating another diagnosable correction round.
+
+These counts document one experiment and are not bundled with this source repository. Public datasets and released models are listed in [OPEN_RESOURCES.md](OPEN_RESOURCES.md). Recordings, model weights, hardware calibration, credentials, and machine-specific state remain outside Git.
